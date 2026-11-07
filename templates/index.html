@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Command Center | Governing Officer Tarwater</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>🛡️ Autonomous Command Center</h1>
+        <p>Executive Oversight: <strong>Governing Officer Tarwater</strong></p>
+    </header>
+
+    <main>
+        <section class="card">
+            <h2>Ecosystem Overview</h2>
+            <div id="status-container">Loading ecosystem metrics...</div>
+        </section>
+    </main>
+
+    <script>
+        async function fetchHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                let html = `<p class="badge">State: ${data.ecosystem_status}</p><ul>`;
+                data.repositories.forEach(repo => {
+                    html += `<li><strong>${repo.name}</strong> — Status: <span class="${repo.status === 'ONLINE' ? 'online' : 'error'}">${repo.status}</span> | Open PRs: ${repo.open_prs}</li>`;
+                });
+                html += `</ul>`;
+                document.getElementById('status-container').innerHTML = html;
+            } catch (err) {
+                document.getElementById('status-container').innerHTML = '<p class="error">Failed to connect to backend telemetry.</p>';
+            }
+        }
+        fetchHealth();
+        setInterval(fetchHealth, 30000); // Refresh every 30s
+    </script>
+</body>
+</html>
